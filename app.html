@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ilo pi tenpo pona</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.2.0/dist/css/datepicker-bulma.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.2.0/dist/js/datepicker.min.js"></script>
+    <script src="js/app.js"></script>
+  </head>
+  <body>
+    <section class="section">
+      <div class="container">
+        <div class="buttons">
+          <a class="button" href="index.html">go back</a>
+        </div>
+        <div id="tabs" class="tabs is-medium">
+          <ul>
+            <li class="is-active"><a data-target="manage">manage</a></li>
+            <li><a data-target="today">today’s checklist</a></li>
+          </ul>
+        </div>
+        <div id="manage">
+          <p class="subtitle">
+          add, remove and update subjects
+          </p>
+          <!--<div class="box level is-mobile">
+            <div class="level-left">
+              <span class="button is-static mr-2">8</span>
+              <span class="is-size-4">mathematics</span>
+            </div>
+            <div class="buttons">
+              <span class="button is-static">05/01/2022</span>
+              <button class="button">edit</button>
+              <button class="button is-danger">remove</button>
+            </div>
+          </div>-->
+          <div class="buttons">
+            <button id="new-subject" class="button is-primary">new subject</button>
+          </div>
+          <div id="events-manage" class="container">
+          </div>
+        </div>
+        <div id="today" class="is-hidden">
+          <div id="events-today" class="container">
+          </div>
+        </div>
+      </div>
+    </section>
+    <div id="subject-modal" class="modal">
+      <div class="modal-background">
+      </div>
+      <div class="modal-content box">
+        <div class="field">
+          <input id="name" class="input" type="text" placeholder="name"></input>
+        </div>
+        <div class="field">
+          <input id="sessions" class="input" type="number" placeholder="sessions"></input>
+        </div>
+        <div class="field">
+          <input id="date" class="input" type="date"></input>
+        </div>
+        <div class="buttons">
+          <button id="subject-modal-done" class="button is-primary">done</button>
+          <button id="subject-modal-cancel" class="button is-danger">cancel</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      const tabs = document.querySelectorAll('#tabs li a');
+      for (let tab of tabs) {
+        tab.onclick = (event) => {
+          for (let tab of tabs) {
+            tab.closest('li').classList.remove('is-active');
+            const targetID = tab.dataset.target;
+            document.getElementById(targetID).classList.add('is-hidden');
+          };
+          event.target.closest('li').classList.add('is-active');
+          const targetID = event.target.dataset.target;
+          document.getElementById(targetID).classList.remove('is-hidden');
+        };
+      }
+    </script>
+  </body>
+</html>
