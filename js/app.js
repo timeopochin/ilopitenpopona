@@ -148,7 +148,7 @@ window.onload = () => {
         manage.innerHTML = '';
         for (let [subject, key] of subjects) {
           const subjectElement = document.createElement('div');
-          subjectElement.classList.add('box', 'level', 'is-mobile');
+          subjectElement.classList.add('box', 'level');
           subjectElement.innerHTML = `
             <div class="level-left">
               <span class="button is-static mr-2">${subject.sessions}</span>
