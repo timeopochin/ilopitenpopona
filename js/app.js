@@ -120,7 +120,7 @@ window.onload = () => {
           // Where the magic happens
           const urgency = (daysLeft >= 7 || daysLeft < 0) ? 1 : (daysLeft - 1)/7;
           let priority;
-          if (cursor.value.lastDone !== null && (new Date()).getTime() - cursor.value.lastDone.getTime() <= 86400000) {
+          if (cursor.value.lastDone !== null && today.getTime() - cursor.value.lastDone.getTime() <= 86400000) {
             priority = ((daysLeft - sessions - 1)/(sessions + 1))*urgency;
           } else {
             priority = ((daysLeft - sessions)/sessions)*urgency;
@@ -148,24 +148,23 @@ window.onload = () => {
         manage.innerHTML = '';
         for (let [subject, key] of subjects) {
           const subjectElement = document.createElement('div');
-          subjectElement.classList.add('box', 'level');
+          subjectElement.classList.add('level', 'ml-1');
+          if (subject.sessions > 0) {
+            subjectElement.classList.add('is-info');
+          }
           subjectElement.innerHTML = `
-            <div class="level-left">
-              <span class="button is-static mr-2">${subject.sessions}</span>
-              <span class="is-size-4">${subject.name}</span>
-            </div>
+            <p><strong>${subject.sessions}</strong> sessions of <strong>${subject.name}</strong> to do before ${subject.date.toLocaleDateString('en-BG', dateOptions)}</p>
             <div class="buttons">
-              <span class="button is-static">${subject.date.toLocaleDateString('en-BG', dateOptions)}</span>
-              <button class="button" name="edit">edit</button>
-              <button class="button is-danger" name="remove">remove</button>
+              <a class="mr-3" name="edit">edit</a>
+              <a name="remove">remove</a>
             </div>
           `;
           manage.appendChild(subjectElement);
-          const edit = subjectElement.querySelector('button[name="edit"]');
+          const edit = subjectElement.querySelector('a[name="edit"]');
           edit.onclick = (event) => {
             openSubjectModal(db, key, subject);
           };
-          const remove = subjectElement.querySelector('button[name="remove"]');
+          const remove = subjectElement.querySelector('a[name="remove"]');
           remove.onclick = (event) => {
             if (window.confirm(`${subject.name} will be removed`)) {
               deleteSubject(db, key);
@@ -181,7 +180,11 @@ window.onload = () => {
         let recommends = [];
         for (let [subject, key] of subjects) {
           if (subject.sessions <= 0) {
-            continue;
+            let today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (subject.lastDone !== null && today.getTime() - subject.lastDone.getTime() > 86400000) {
+              continue;
+            }
           }
           if (subject.priority < 0) {
             overdues.push([subject, key]);
@@ -204,22 +207,26 @@ window.onload = () => {
             content.innerHTML = `<h4>${title}</h4>`;
             content.classList.add('content');
             subjectsBox.appendChild(content);
-            const list = document.createElement('ul');
-            content.appendChild(list);
             for (let [subject, key] of subjects) {
-              const item = document.createElement('li');
-              item.classList.add('level', 'is-mobile', 'my-0');
-              let toggle = '<a name="toggle">mark as done</a>';
+              const item = document.createElement('div');
+              item.classList.add('level', 'my-3', 'ml-2');
+              let toggle = '<a name="toggle">done</a>';
               let check = '';
-              if (subject.lastDone !== null && (new Date()).getTime() - subject.lastDone.getTime() <= 86400000) {
-                toggle = '<a class="mr-3" name="extra">i’ve done extra</a><a name="toggle">mark as undone</a>';
+              let today = new Date();
+              today.setHours(0, 0, 0, 0);
+              if (subject.lastDone !== null && today.getTime() - subject.lastDone.getTime() <= 86400000) {
+                if (subject.sessions <= 0) {
+                  toggle = '<span class="mr-3">finished</span><a name="toggle">not done</a>';
+                } else {
+                  toggle = '<a class="mr-3" name="extra">did extra</a><a name="toggle">not done</a>';
+                }
                 check = ' ✔';
               }
               item.innerHTML = `<span>${subject.name + check}</span><div class="level-right">${toggle}</div>`;
-              list.appendChild(item);
+              content.appendChild(item);
               item.querySelector('a[name="toggle"]').onclick = (event) => {
-                if (toggle === '<a name="toggle">mark as done</a>') {
-                  subject.lastDone = new Date();
+                if (toggle === '<a name="toggle">done</a>') {
+                  subject.lastDone = today;
                   subject.sessions--;
                 } else {
                   subject.lastDone = null;
@@ -227,7 +234,7 @@ window.onload = () => {
                 }
                 insertSubject(db, subject, key);
               };
-              if (toggle !== '<a name="toggle">mark as done</a>') {
+              if (toggle.includes('extra')) {
                 item.querySelector('a[name="extra"]').onclick = (event) => {
                   if (window.confirm(`${subject.name} sessions left will be reduced by 1`)) {
                     subject.sessions--;
