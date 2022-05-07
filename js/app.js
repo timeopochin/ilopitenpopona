@@ -4,6 +4,8 @@ window.onload = () => {
     // Database stuff start
     if (!window.indexedDB) {
       console.log('Your browser doesn’t suppport IndexedDB!')
+      window.alert('Your browser doesn’t support IndexedDB which is required for this site to work.');
+      window.location.href = '/';
       return;
     }
 
