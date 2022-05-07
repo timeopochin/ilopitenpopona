@@ -68,7 +68,12 @@ window.onload = () => {
       const txn = db.transaction('subject', 'readwrite');
       const store = txn.objectStore('subject');
 
-      let query = store.put(subject, key);
+      let query;
+      if (key == null) {
+        query = store.put(subject);
+      } else {
+        query = store.put(subject, key);
+      }
 
       query.onsuccess = (event) => {
         console.log(event);
